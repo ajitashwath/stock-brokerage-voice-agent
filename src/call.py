@@ -5,11 +5,11 @@ import time
 from dotenv import load_dotenv
 from livekit import api
 
-AGENT_NAME = "vikram-outbound-caller"
+AGENT_NAME = "jack-outbound-caller"
 PHONE_NUMBER_TO_CALL = "+918825526326"
 
 async def test_sip_configuration():
-    load_dotenv(".env")
+    load_dotenv(".env.local")
     api_key = os.getenv("LIVEKIT_API_KEY")
     api_secret = os.getenv("LIVEKIT_API_SECRET")
     ws_url = os.getenv("LIVEKIT_URL")
@@ -79,7 +79,7 @@ async def make_call():
             print(f"4. Check that your SIP provider credentials are correct")
         
     except Exception as e:
-        print(f"❌ Unexpected error: {e}")
+        print(f"Unexpected error: {e}")
         
     finally:
         if 'lkapi' in locals():
