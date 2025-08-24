@@ -11,7 +11,7 @@ PHONE_NUMBER_TO_CALL = "+918825526326"
 
 
 async def main():
-    load_dotenv(".env")
+    load_dotenv(".env.local")
     api_key = os.getenv("LIVEKIT_API_KEY")
     api_secret = os.getenv("LIVEKIT_API_SECRET")
     ws_url = os.getenv("LIVEKIT_URL") 
