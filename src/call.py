@@ -6,10 +6,10 @@ from dotenv import load_dotenv
 from livekit import api
 
 AGENT_NAME = "jack-outbound-caller"
-PHONE_NUMBER_TO_CALL = "+918825526326"
+PHONE_NUMBER_TO_CALL = "+919787264648"
 
 async def test_sip_configuration():
-    load_dotenv(".env")
+    load_dotenv(".env.local")
     api_key = os.getenv("LIVEKIT_API_KEY")
     api_secret = os.getenv("LIVEKIT_API_SECRET")
     ws_url = os.getenv("LIVEKIT_URL")
