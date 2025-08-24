@@ -9,7 +9,7 @@ AGENT_NAME = "jack-outbound-caller"
 PHONE_NUMBER_TO_CALL = "+918825526326"
 
 async def test_sip_configuration():
-    load_dotenv(".env.local")
+    load_dotenv(".env")
     api_key = os.getenv("LIVEKIT_API_KEY")
     api_secret = os.getenv("LIVEKIT_API_SECRET")
     ws_url = os.getenv("LIVEKIT_URL")
@@ -44,7 +44,7 @@ async def test_sip_configuration():
 async def make_call():
     try:
         lkapi, trunk_id = await test_sip_configuration()
-        room_name = f"outbound-call-{int(time.time())}"
+        room_name = f"hotel-outbound-call-{int(time.time())}"
         print(f"\nCreating Call")
         print(f"Room name: {room_name}")
         print(f"Phone number: {PHONE_NUMBER_TO_CALL}")
