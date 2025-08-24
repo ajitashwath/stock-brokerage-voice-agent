@@ -11,7 +11,7 @@ from livekit.plugins import cartesia, deepgram, google, noise_cancellation, sile
 
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-logger = logging.getLogger("abhinav-agent")
+logger = logging.getLogger("vikram-agent")
 
 load_dotenv(".env.local")
 
@@ -29,7 +29,7 @@ async def hangup_call():
     except Exception as e:
         logger.error(f"Error hanging up call: {e}")
 
-# --- Dataclass for State Management ---
+# Dataclass for State Management
 @dataclass
 class CallState:
     prospect_name: str | None = None
@@ -132,7 +132,7 @@ class ObjectionHandlerAgent(Agent):
         return "Does that make sense?", QualificationAgent(chat_ctx=self.session._chat_ctx)
     @function_tool()
     async def end_call(self, context: RunContext[CallState]):
-        logger.info("User requested to end call. Handing off to GoodbyeAgent.")
+        logger.info("User requested to end call. Handing off to Goodbye Agent.")
         return "I understand. Thank you for your time.", GoodbyeAgent(chat_ctx=self.session._chat_ctx)
 
 
