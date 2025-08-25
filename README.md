@@ -2,109 +2,162 @@
   <img src="./.github/assets/livekit-mark.png" alt="LiveKit logo" width="100" height="100">
 </a>
 
-# LiveKit Agents Starter - Python
+# Outbound Stock Brokerage Caller - Python (LiveKit Agent)
 
-A complete starter project for building voice AI apps with [LiveKit Agents for Python](https://github.com/livekit/agents).
+A complete outbound sales calling system built with [LiveKit Agents for Python](https://github.com/livekit/agents). This agent makes cold calls for investment opportunities with a sophisticated multi-stage conversation flow.
 
-The starter project includes:
+## Features
 
-- A simple voice AI assistant based on the [Voice AI quickstart](https://docs.livekit.io/agents/start/voice-ai/)
-- Voice AI pipeline based on [OpenAI](https://docs.livekit.io/agents/integrations/llm/openai/), [Cartesia](https://docs.livekit.io/agents/integrations/tts/cartesia/), and [Deepgram](https://docs.livekit.io/agents/integrations/llm/deepgram/)
-  - Easily integrate your preferred [LLM](https://docs.livekit.io/agents/integrations/llm/), [STT](https://docs.livekit.io/agents/integrations/stt/), and [TTS](https://docs.livekit.io/agents/integrations/tts/) instead, or swap to a realtime model like the [OpenAI Realtime API](https://docs.livekit.io/agents/integrations/realtime/openai)
-- Eval suite based on the LiveKit Agents [testing & evaluation framework](https://docs.livekit.io/agents/build/testing/)
-- [LiveKit Turn Detector](https://docs.livekit.io/agents/build/turns/turn-detector/) for contextually-aware speaker detection, with multilingual support
-- [LiveKit Cloud enhanced noise cancellation](https://docs.livekit.io/home/cloud/noise-cancellation/)
-- Integrated [metrics and logging](https://docs.livekit.io/agents/build/metrics/)
+### Multi-Agent Sales Pipeline
+- **GreetingAgent**: Professional introduction and soft pitch delivery
+- **QualificationAgent**: Uncovers investment potential through targeted questions
+- **ObjectionHandlerAgent**: Handles common sales objections with empathy
+- **ClosingAgent**: Schedules consultations using assumptive closing techniques
+- **GoodbyeAgent**: Professional call conclusion and follow-up commitment
 
-This starter app is compatible with any [custom web/mobile frontend](https://docs.livekit.io/agents/start/frontend/) or [SIP-based telephony](https://docs.livekit.io/agents/start/telephony/).
+### Advanced Capabilities
+- **Outbound SIP Calling**: Automated dialing through LiveKit SIP infrastructure
+- **Answering Machine Detection**: Leaves appropriate messages and hangs up
+- **State Management**: Tracks prospect information throughout the call
+- **Dynamic Agent Handoffs**: Seamless transitions between conversation stages
+- **Call Analytics**: Integrated metrics and logging for performance tracking
 
-## Dev Setup
+### Technical Stack
+- **LLM**: Google Gemini 1.5 Flash for natural conversation
+- **STT**: Deepgram Nova-3 for accurate speech recognition
+- **TTS**: Cartesia Sonic with professional voice selection
+- **VAD**: Silero VAD for precise speech detection
+- **Noise Cancellation**: LiveKit Cloud BVC Telephony enhancement
 
-Clone the repository and install dependencies to a virtual environment:
+## Agent Conversation Flow
 
-```console
-cd agent-starter-python
-uv sync
+```
+GreetingAgent
+    ↓ (interested)
+QualificationAgent
+    ↓ (objection)          ↓ (interested)         ↓ (not interested)
+ObjectionHandlerAgent → ClosingAgent        →  GoodbyeAgent
+    ↓ (resolved)           ↓ (scheduled)
+QualificationAgent   →   GoodbyeAgent
 ```
 
-Set up the environment by copying `.env.example` to `.env.local` and filling in the required values:
+## Configuration
 
-- `LIVEKIT_URL`: Use [LiveKit Cloud](https://cloud.livekit.io/) or [run your own](https://docs.livekit.io/home/self-hosting/)
-- `LIVEKIT_API_KEY`
-- `LIVEKIT_API_SECRET`
-- `OPENAI_API_KEY`: [Get a key](https://platform.openai.com/api-keys) or use your [preferred LLM provider](https://docs.livekit.io/agents/integrations/llm/)
-- `DEEPGRAM_API_KEY`: [Get a key](https://console.deepgram.com/) or use your [preferred STT provider](https://docs.livekit.io/agents/integrations/stt/)
-- `CARTESIA_API_KEY`: [Get a key](https://play.cartesia.ai/keys) or use your [preferred TTS provider](https://docs.livekit.io/agents/integrations/tts/)
+### Environment Variables
 
-You can load the LiveKit environment automatically using the [LiveKit CLI](https://docs.livekit.io/home/cli/cli-setup):
+Copy `.env.example` to `.env.local` and configure:
 
 ```bash
-lk app env -w .env.local
+# LiveKit Configuration
+LIVEKIT_URL=wss://your-livekit-instance.com
+LIVEKIT_API_KEY=your_api_key
+LIVEKIT_API_SECRET=your_api_secret
+
+# SIP Configuration (Required for outbound calling)
+SIP_OUTBOUND_TRUNK_ID=your_sip_trunk_id
+
+# AI Service APIs
+OPENAI_API_KEY=your_openai_key  # Optional, using Google Gemini
+DEEPGRAM_API_KEY=your_deepgram_key
+CARTESIA_API_KEY=your_cartesia_key
 ```
 
-## Run the agent
+### SIP Trunk Setup
 
-Before your first run, you must download certain models such as [Silero VAD](https://docs.livekit.io/agents/build/turns/vad/) and the [LiveKit turn detector](https://docs.livekit.io/agents/build/turns/turn-detector/):
+This agent requires a configured SIP trunk for outbound calling:
+1. Set up a SIP trunk in your LiveKit Cloud dashboard
+2. Configure your SIP provider credentials
+3. Ensure outbound calling is enabled
+4. Add the trunk ID to `SIP_OUTBOUND_TRUNK_ID`
 
-```console
-uv run python src/agent.py download-files
-```
+## Installation & Setup
 
-Next, run this command to speak to your agent directly in your terminal:
+1. **Install Dependencies**
+   ```bash
+   cd agent-starter-python
+   uv sync
+   ```
 
-```console
-uv run python src/agent.py console
-```
+2. **Download Required Models**
+   ```bash
+   uv run python src/agent.py download-files
+   ```
 
-To run the agent for use with a frontend or telephony, use the `dev` command:
+3. **Load Environment (Optional)**
+   ```bash
+   lk app env -w .env.local
+   ```
 
-```console
+## Running the Agent
+
+### Development Mode
+```bash
 uv run python src/agent.py dev
 ```
 
-In production, use the `start` command:
-
-```console
+### Production Mode
+```bash
 uv run python src/agent.py start
 ```
 
-## Frontend & Telephony
+### Making Test Calls
 
-Get started quickly with our pre-built frontend starter apps, or add telephony support:
+Use the included `call.py` script to initiate outbound calls:
 
-| Platform | Link | Description |
-|----------|----------|-------------|
-| **Web** | [`livekit-examples/agent-starter-react`](https://github.com/livekit-examples/agent-starter-react) | Web voice AI assistant with React & Next.js |
-| **iOS/macOS** | [`livekit-examples/agent-starter-swift`](https://github.com/livekit-examples/agent-starter-swift) | Native iOS, macOS, and visionOS voice AI assistant |
-| **Flutter** | [`livekit-examples/agent-starter-flutter`](https://github.com/livekit-examples/agent-starter-flutter) | Cross-platform voice AI assistant app |
-| **React Native** | [`livekit-examples/voice-assistant-react-native`](https://github.com/livekit-examples/voice-assistant-react-native) | Native mobile app with React Native & Expo |
-| **Android** | [`livekit-examples/agent-starter-android`](https://github.com/livekit-examples/agent-starter-android) | Native Android app with Kotlin & Jetpack Compose |
-| **Web Embed** | [`livekit-examples/agent-starter-embed`](https://github.com/livekit-examples/agent-starter-embed) | Voice AI widget for any website |
-| **Telephony** | [📚 Documentation](https://docs.livekit.io/agents/start/telephony/) | Add inbound or outbound calling to your agent |
+```bash
+# Edit the phone number in src/call.py
+PHONE_NUMBER_TO_CALL = "+1234567890"
 
-For advanced customization, see the [complete frontend guide](https://docs.livekit.io/agents/start/frontend/).
-
-## Tests and evals
-
-This project includes a complete suite of evals, based on the LiveKit Agents [testing & evaluation framework](https://docs.livekit.io/agents/build/testing/). To run them, use `pytest`.
-
-```console
-uv run pytest
+# Run the test call
+uv run python src/call.py
 ```
 
-## Using this template repo for your own project
+The script will:
+- Validate your SIP configuration
+- Create a room for the call
+- Dispatch the agent
+- Initiate the outbound call
 
-Once you've started your own project based on this repo, you should:
+## Agent Behavior
 
-1. **Check in your `uv.lock`**: This file is currently untracked for the template, but you should commit it to your repository for reproducible builds and proper configuration management. (The same applies to `livekit.toml`, if you run your agents in LiveKit Cloud)
+### Sales Script Highlights
 
-2. **Remove the git tracking test**: Delete the "Check files not tracked in git" step from `.github/workflows/tests.yml` since you'll now want this file to be tracked. These are just there for development purposes in the template repo itself.
+**Greeting Phase**:
+- Professional introduction as "Jordan from Stratton Oakmont"
+- Confirms contact name and availability
+- Delivers value proposition about Indian stock market opportunities
 
-3. **Add your own repository secrets**: You must [add secrets](https://docs.github.com/en/actions/how-tos/writing-workflows/choosing-what-your-workflow-does/using-secrets-in-github-actions) for `OPENAI_API_KEY` or your other LLM provider so that the tests can run in CI.
+**Qualification Questions**:
+- Current investment status (SIPs, direct equity)
+- Financial goals (5-10 year timeline)
+- Risk appetite assessment (1-10 scale)
 
-## Deploying to production
+**Objection Handling**:
+- Market volatility concerns → SIP diversification benefits
+- Insufficient capital → Low minimum investment options
+- Market inexperience → Educational support and guidance
 
-This project is production-ready and includes a working `Dockerfile`. To deploy it to LiveKit Cloud or another environment, see the [deploying to production](https://docs.livekit.io/agents/ops/deployment/) guide.
+**Closing Strategy**:
+- Assumptive close for 15-minute consultation
+- Flexible scheduling options
+- No-obligation positioning
+
+## Frontend Integration
+
+While designed for outbound calling, this agent can work with frontend applications:
+
+| Platform | Repository | Description |
+|----------|------------|-------------|
+| **Web** | [`livekit-examples/agent-starter-react`](https://github.com/livekit-examples/agent-starter-react) | React & Next.js integration |
+| **Mobile** | [`livekit-examples/agent-starter-flutter`](https://github.com/livekit-examples/agent-starter-flutter) | Cross-platform mobile app |
+| **iOS** | [`livekit-examples/agent-starter-swift`](https://github.com/livekit-examples/agent-starter-swift) | Native iOS application |
+
+## Compliance & Ethics
+This sales calling system should be used in compliance with:
+- Local telemarketing regulations
+- Do Not Call registry requirements
+- GDPR/privacy regulations where applicable
+- Industry-specific compliance standards
 
 ## License
 
