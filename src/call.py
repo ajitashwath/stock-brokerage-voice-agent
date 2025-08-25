@@ -5,7 +5,7 @@ import time
 from dotenv import load_dotenv
 from livekit import api
 
-AGENT_NAME = "jack-outbound-caller"
+AGENT_NAME = "jordan-outbound-caller"
 PHONE_NUMBER_TO_CALL = "+919787264648"
 
 async def test_sip_configuration():
@@ -37,14 +37,14 @@ async def test_sip_configuration():
         print(f"API connection successful. Found {len(rooms.rooms)} rooms.")
         return lkapi, trunk_id
     except Exception as e:
-        print(f"❌ API connection failed: {e}")
+        print(f"API connection failed: {e}")
         await lkapi.aclose()
         raise
 
 async def make_call():
     try:
         lkapi, trunk_id = await test_sip_configuration()
-        room_name = f"hotel-outbound-call-{int(time.time())}"
+        room_name = f"stock-outbound-call-{int(time.time())}"
         print(f"\nCreating Call")
         print(f"Room name: {room_name}")
         print(f"Phone number: {PHONE_NUMBER_TO_CALL}")

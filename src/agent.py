@@ -11,7 +11,7 @@ from livekit.plugins import cartesia, deepgram, google, noise_cancellation, sile
 
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-logger = logging.getLogger("jack-agent")
+logger = logging.getLogger("jordan-agent")
 
 load_dotenv(".env.local")
 
@@ -34,23 +34,23 @@ async def hangup_call():
 class CallState:
     guest_name: str | None = None
     is_interested: bool = False
-    travel_dates: str | None = None
-    party_size: str | None = None
-    room_preferences: str | None = None
+    investment_goals: str | None = None
+    risk_appetite: str | None = None
+    investment_experience: str | None = None
     objections: list[str] = field(default_factory=list)
 
 class GreetingAgent(Agent):
     def __init__(self):
         super().__init__(
-            instructions="""You are Jack, a hospitality specialist with The Overlook Hotel.
+            instructions="""You are Jordan, a senior market analyst with Stratton Oakmont.
             Your current task is to start the cold call.
-            1. Greet the user enthusiastically.
+            1. Greet the user warmly and professionally.
             2. Confirm their name if you have it.
             3. Check if it's a good time to chat for a moment.
-            4. Deliver your concise, engaging value proposition: "I help travelers like you discover unforgettable experiences at The Overlook Hotel, where luxury meets breathtaking mountain views."
+            4. Deliver your concise, engaging value proposition: "I'm calling from Stratton Oakmont, and I help investors like you explore high-growth opportunities in the Indian stock market to build long-term wealth."
             5. Your goal is to get a neutral or positive response to proceed to the next step.
             Speak at a brisk but natural pace (~140-150 words per minute).
-            Example: "Hi, this is Jack with The Overlook Hotel. Is this [Contact_Name]? Got a quick moment to chat about an amazing getaway opportunity?"
+            Example: "Hello, am I speaking with [Contact_Name]? This is Jordan from Stratton Oakmont. Do you have a moment to discuss how you can benefit from the current market trends?"
             """
         )
     
@@ -61,7 +61,7 @@ class GreetingAgent(Agent):
     async def detected_answering_machine(self, context: RunContext[CallState]):
         logger.info("Answering machine detected. Leaving a message and hanging up.")
         await context.session.generate_reply(
-            instructions="""Leave a brief, friendly message: "Hi, this is Jack from The Overlook Hotel. I was calling about our special offers and premium accommodations. I'll try again another time. Thanks!" After saying this, you will hang up."""
+            instructions="""Leave a brief, friendly message: "Hello, this is Jordan from Stratton Oakmont. I was calling to discuss some exciting investment opportunities in the Indian market. I'll try again another time. Thank you!" After saying this, you will hang up."""
         )
         if context.session.current_speech:
             await context.session.current_speech.wait_for_playout()
@@ -70,60 +70,60 @@ class GreetingAgent(Agent):
     @function_tool()
     async def proceed_to_qualification(self, context: RunContext[CallState]):
         logger.info("Handoff from Greeting to Qualification")
-        return "Great!", QualificationAgent(chat_ctx=self.session._chat_ctx)
+        return "Excellent!", QualificationAgent(chat_ctx=self.session._chat_ctx)
 
     @function_tool()
     async def end_call(self, context: RunContext[CallState]):
         logger.info("User requested to end call. Handing off to GoodbyeAgent.")
-        return "Of course. Thanks for your time.", GoodbyeAgent(chat_ctx=self.session._chat_ctx)
+        return "Of course. Thank you for your time.", GoodbyeAgent(chat_ctx=self.session._chat_ctx)
 
 
 class QualificationAgent(Agent):
     def __init__(self, chat_ctx):
         super().__init__(
-            instructions="""You are Jack, a hospitality specialist. Your current task is to qualify the lead.
-            Ask 1-2 critical, open-ended questions to uncover potential interest in booking a stay.
-            - "Are you planning any getaways or special occasions in the next few months?"
-            - "What kind of experiences are you looking for in your ideal vacation - relaxation, adventure, or something special?"
-            - "On a scale of 1-10, how motivated are you to book a memorable hotel experience right now?"
+            instructions="""You are Jordan, a senior market analyst. Your current task is to qualify the lead.
+            Ask 1-2 critical, open-ended questions to uncover their investment potential.
+            - "Are you currently investing in the stock market, perhaps through SIPs or direct equity?"
+            - "What are your financial goals for the next 5-10 years? Are you thinking about retirement, a big purchase, or wealth creation?"
+            - "On a scale of 1-10, how would you describe your risk appetite when it comes to investments?"
             Listen carefully to their response to determine if they are interested, have an objection, or are not interested at all.""",
             chat_ctx=chat_ctx,
         )
 
     @function_tool()
-    async def prospect_is_interested(self, context: RunContext[CallState], travel_dates: str, party_size: str, room_preferences: str = ""):
-        logger.info(f"Guest is interested. Dates: {travel_dates}, Party size: {party_size}, Preferences: {room_preferences}")
+    async def prospect_is_interested(self, context: RunContext[CallState], investment_goals: str, risk_appetite: str, investment_experience: str = ""):
+        logger.info(f"Prospect is interested. Goals: {investment_goals}, Risk Appetite: {risk_appetite}, Experience: {investment_experience}")
         context.userdata.is_interested = True
-        context.userdata.travel_dates = travel_dates
-        context.userdata.party_size = party_size
-        context.userdata.room_preferences = room_preferences
-        return "That sounds wonderful!", ClosingAgent(chat_ctx=self.session._chat_ctx)
+        context.userdata.investment_goals = investment_goals
+        context.userdata.risk_appetite = risk_appetite
+        context.userdata.investment_experience = investment_experience
+        return "That's great to hear!", ClosingAgent(chat_ctx=self.session._chat_ctx)
 
     @function_tool()
     async def prospect_has_objection(self, context: RunContext[CallState], objection: str):
-        logger.info(f"Guest has an objection: {objection}")
+        logger.info(f"Prospect has an objection: {objection}")
         context.userdata.objections.append(objection)
-        return "I understand.", ObjectionHandlerAgent(chat_ctx=self.session._chat_ctx)
+        return "I understand your concern.", ObjectionHandlerAgent(chat_ctx=self.session._chat_ctx)
 
     @function_tool()
     async def prospect_not_interested(self, context: RunContext[CallState]):
-        logger.info("Guest is not interested.")
+        logger.info("Prospect is not interested.")
         return "I appreciate your time.", GoodbyeAgent(chat_ctx=self.session._chat_ctx)
     
     @function_tool()
     async def end_call(self, context: RunContext[CallState]):
         logger.info("User requested to end call. Handing off to GoodbyeAgent.")
-        return "No problem. I appreciate your time.", GoodbyeAgent(chat_ctx=self.session._chat_ctx)
+        return "No problem at all. Thank you for your time.", GoodbyeAgent(chat_ctx=self.session._chat_ctx)
 
 
 class ObjectionHandlerAgent(Agent):
     def __init__(self, chat_ctx):
         super().__init__(
-            instructions="""You are Jack, a hospitality specialist. Your current task is to handle objections.
+            instructions="""You are Jordan, a senior market analyst. Your current task is to handle objections.
             Respond empathetically to the user's concerns. Ask follow-up questions to understand their specific worries.
-            - If "Too expensive": "I understand budget is important. What price range works for you? We have various packages and seasonal rates that might fit perfectly."
-            - If "Not the right time": "That makes sense. When would be a better time for a getaway? I can share information about our upcoming specials."
-            - If "Already have plans": "That's wonderful! Are you looking for something for later in the year, or perhaps a backup option?"
+            - If "The market is too risky/volatile": "I understand that the market has its ups and downs. That's why we focus on a diversified portfolio and long-term strategies to mitigate risk. Have you considered Systematic Investment Plans or 'SIPs' to average out your investments over time?"
+            - If "I don't have enough money to invest": "That's a common concern. The great thing about the Indian market is that you can start small. We have options that allow you to begin investing with just a few thousand rupees a month."
+            - If "I'm not familiar with the stock market": "Not a problem at all. Part of my job is to guide you. We provide clear and simple advice, and we can start with some basic, well-researched options to get you comfortable."
             Your goal is to resolve the objection and steer the conversation back towards qualification.""",
             chat_ctx=chat_ctx,
         )
@@ -131,34 +131,34 @@ class ObjectionHandlerAgent(Agent):
     @function_tool()
     async def objection_resolved(self, context: RunContext[CallState]):
         logger.info("Objection resolved, returning to qualification.")
-        return "Does that make sense?", QualificationAgent(chat_ctx=self.session._chat_ctx)
+        return "Does that sound better?", QualificationAgent(chat_ctx=self.session._chat_ctx)
     
     @function_tool()
     async def end_call(self, context: RunContext[CallState]):
         logger.info("User requested to end call. Handing off to Goodbye Agent.")
-        return "I understand. Thank you for your time.", GoodbyeAgent(chat_ctx=self.session._chat_ctx)
+        return "I understand completely. Thank you for your time.", GoodbyeAgent(chat_ctx=self.session._chat_ctx)
 
 
 class ClosingAgent(Agent):
     def __init__(self, chat_ctx):
         super().__init__(
-            instructions="""You are Jack, a hospitality specialist. Your current task is to close for a booking consultation.
-            The guest has shown interest. Your goal is to schedule a 15-minute consultation to discuss their perfect stay.
+            instructions="""You are Jordan, a senior market analyst. Your current task is to close for a consultation.
+            The prospect has shown interest. Your goal is to schedule a 15-minute consultation to discuss their financial goals and a personalized investment strategy.
             Use an assumptive close.
-            Example: "Based on what you've shared, I'd love to show you our available rooms and packages for those dates. Are you free for a quick 15-minute call Tuesday at 2 PM to go over everything?"
-            If they are hesitant, offer flexibility and emphasize the no-obligation nature.""",
+            Example: "Based on what you've told me, I'm confident we can help you achieve your financial goals. I'd like to schedule a 15-minute, no-obligation call to discuss a personalized investment plan. Would tomorrow at 4 PM work for you?"
+            If they are hesitant, offer flexibility and emphasize the no-obligation nature of the call.""",
             chat_ctx=chat_ctx,
         )
     
     @function_tool()
     async def consultation_scheduled(self, context: RunContext[CallState], date: str, time: str):
         logger.info(f"Consultation scheduled for {date} at {time}.")
-        return f"Perfect, I've booked that consultation for us...", GoodbyeAgent(chat_ctx=self.session._chat_ctx)
+        return f"Excellent, I've scheduled that consultation for us...", GoodbyeAgent(chat_ctx=self.session._chat_ctx)
     
     @function_tool()
     async def end_call(self, context: RunContext[CallState]):
         logger.info("User requested to end call. Handing off to GoodbyeAgent.")
-        return "I understand. Let's talk another time.", GoodbyeAgent(chat_ctx=self.session._chat_ctx)
+        return "I understand. We can connect another time.", GoodbyeAgent(chat_ctx=self.session._chat_ctx)
 
 
 class GoodbyeAgent(Agent):
@@ -166,7 +166,7 @@ class GoodbyeAgent(Agent):
         super().__init__(
             instructions="""Your task is to end the call politely and professionally.
             If a consultation was booked, confirm it. If not, thank them for their time and leave the door open for future contact.
-            Example (no interest): "No problem at all. Thanks for your time, [Contact Name]. I'll check in later, and feel free to reach out if you start planning any getaways!""",
+            Example (no interest): "Not a problem at all. Thank you for your time, [Contact Name]. I'll send you a follow-up email with my contact information in case you'd like to discuss investment opportunities in the future. Have a great day!" """,
             chat_ctx=chat_ctx,
         )
 
@@ -240,7 +240,7 @@ async def entrypoint(ctx: JobContext):
 if __name__ == "__main__":
     cli.run_app(WorkerOptions(
         entrypoint_fnc=entrypoint,
-        agent_name="jack-outbound-caller",
+        agent_name="jordan-outbound-caller",
         num_idle_processes=1,
         load_threshold=float('inf'),
     ))
